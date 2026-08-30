@@ -16,9 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from smalltrader.views import index
+from smalltrader import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',index, name='home'),
+    path('', views.index, name='home'),
+    path('market/', views.market, name='market'),
 ]

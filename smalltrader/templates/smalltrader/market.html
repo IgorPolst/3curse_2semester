@@ -90,7 +90,7 @@
             data-rarity-value="{{ rarity_levels|get_item:good.rarity|get_item:'value' }}">
             
             <div class="card h-100">  
-                <img src="{% static good.image %}" 
+                <img src="{{ good.image.url }}"
                     class="card-img-top" 
                     alt="{{ good.title }}" 
                     style="height: 200px; object-fit: contain; width: 100%; background-color: #ffff;">
@@ -99,7 +99,7 @@
                     <!-- Категория -->
                     <span class="badge bg-{{ categories|get_item:good.category|get_item:'color' }} mb-2">
                         <i class="fas {{ categories|get_item:good.category|get_item:'icon' }}"></i>
-                        {{ categories|get_item:good.category|get_item:'name' }}
+                        {{ good.category.name}}
                     </span>
                                         
                     <!-- Название и редкость -->
@@ -109,7 +109,7 @@
                         </h5>
                         <span class="badge bg-{{ rarity_levels|get_item:good.rarity|get_item:'color' }} flex-shrink-0" 
                             style="white-space: nowrap; font-size: 0.75rem; padding: 0.35em 0.65em;">
-                            {{ rarity_levels|get_item:good.rarity|get_item:'name' }}
+                            {{ good.rarity.name}}
                         </span>
                     </div>
                     

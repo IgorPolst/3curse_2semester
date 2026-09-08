@@ -12,9 +12,9 @@
     <!-- Фильтры -->
     <div class="row mb-4">
         <div class="col-md-12">
-            <div class="good">
-                <div class="good-body">
-                    <h5 class="good-title">Фильтры товаров</h5>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Фильтры товаров</h5>
                     <div class="row">
                         <!-- По категории -->
                         <div class="col-md-3 mb-2">
@@ -88,7 +88,7 @@
             data-stock="{{ good.in_stock|yesno:'in_stock,out_stock' }}"
             data-price="{{ good.price }}"
             data-rarity-value="{{ rarity_levels|get_item:good.rarity|get_item:'value' }}">
-            
+            <a href="{% url 'good_detail' good.id %}" class="text-decoration-none text-dark">
             <div class="card h-100">  
                 <img src="{{ good.image.url }}"
                     class="card-img-top" 

@@ -37,12 +37,12 @@ class Command(BaseCommand):
             
             if os.path.isfile(source_path):
                 shutil.copy2(source_path, target_path)
-                self.stdout.write(self.style.SUCCESS(f'✅ Скопирована: {image_name}'))
+                self.stdout.write(self.style.SUCCESS(f'Скопирована: {image_name}'))
         
-        self.stdout.write(self.style.SUCCESS(f'✅ Все картинки скопированы в: {target_dir}'))
+        self.stdout.write(self.style.SUCCESS(f'Все картинки скопированы в: {target_dir}'))
         
         # Привязываем картинки к товарам по имени файла
-        self.stdout.write('\n📦 Привязываем картинки к товарам...')
+        self.stdout.write('\nПривязываем картинки к товарам...')
         
         for image_name in image_files:
             # Убираем расширение, получаем slug
@@ -53,10 +53,10 @@ class Command(BaseCommand):
                 good = Good.objects.get(slug=slug)
                 good.image = image_path
                 good.save()
-                self.stdout.write(self.style.SUCCESS(f'  ✅ {slug}: {image_path}'))
+                self.stdout.write(self.style.SUCCESS(f'{slug}: {image_path}'))
             except Good.DoesNotExist:
-                self.stdout.write(self.style.WARNING(f'  ⚠️ Товар с slug="{slug}" не найден'))
+                self.stdout.write(self.style.WARNING(f'Товар с slug="{slug}" не найден'))
             except Good.MultipleObjectsReturned:
-                self.stdout.write(self.style.WARNING(f'  ⚠️ Несколько товаров с slug="{slug}"'))
+                self.stdout.write(self.style.WARNING(f'Несколько товаров с slug="{slug}"'))
         
-        self.stdout.write(self.style.SUCCESS('✅ Готово!'))
+        self.stdout.write(self.style.SUCCESS('Готово!'))

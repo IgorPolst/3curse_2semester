@@ -20,10 +20,12 @@ from smalltrader import views
 from django.conf import settings
 from django.conf.urls.static import static
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='home'),
     path('market/', views.market, name='market'),
+    path('good/<int:good_id>/', views.good_detail, name='good_detail'),
 ]
 
 if settings.DEBUG:

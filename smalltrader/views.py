@@ -1,5 +1,6 @@
 import random
-from django.shortcuts import render
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from .models import Good, Category, Rarity
 
@@ -33,3 +34,12 @@ def market(request):
         }
 
         return render(request, 'smalltrader/market.html', context)
+
+def good_detail (request: HttpRequest, good_id: int) -> HttpResponse:
+    good = get_object_or_404(Good, id=good_id)
+
+    context = {
+        "good": good,
+    }
+
+    return render(request, "smalltrader/good_detail.html", context)

@@ -59,10 +59,10 @@
                         </div>
                         <div class="col-6 text-end">
                             {% if good.in_stock %}
-                                <span class="badge bg-success fs-6">✅ В наличии</span>
+                                <span class="badge bg-success fs-6">В наличии</span>
                                 <p class="text-muted small mt-1">Количество: {{ good.quantity }} шт.</p>
                             {% else %}
-                                <span class="badge bg-danger fs-6">❌ Нет в наличии</span>
+                                <span class="badge bg-danger fs-6">Нет в наличии</span>
                             {% endif %}
                         </div>
                     </div>
@@ -85,31 +85,5 @@
             </div>
         </div>
     </div>
-
-    <!-- Блок рекомендаций (похожие товары) -->
-    {% if related_goods %}
-    <div class="mt-5">
-        <h3>Похожие товары</h3>
-        <div class="row">
-            {% for related in related_goods %}
-            <div class="col-3 mb-3">
-                <div class="card h-100">
-                    {% if related.image %}
-                        <img src="{{ related.image.url }}" 
-                             class="card-img-top" 
-                             alt="{{ related.title }}" 
-                             style="height: 150px; object-fit: contain; background-color: #f8f9fa; padding: 10px;">
-                    {% endif %}
-                    <div class="card-body">
-                        <h6 class="card-title">{{ related.title }}</h6>
-                        <p class="card-text small">{{ related.price }} зол.</p>
-                        <a href="{% url 'good_detail' related.id %}" class="btn btn-sm btn-primary">Подробнее</a>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
 </div>
 {% endblock %}

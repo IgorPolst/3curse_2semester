@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.urls import reverse
 
 
 class Category(models.Model):
@@ -17,6 +18,9 @@ class Category(models.Model):
     
     def __str__(self):
         return self.name
+    
+    def get_absolute_url(self):
+        return reverse('category_goods', args=[self.slug])
 
 
 class Rarity(models.Model):
@@ -34,6 +38,9 @@ class Rarity(models.Model):
     
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('rarity_goods', args=[self.slug])
 
 
 class Good(models.Model):
@@ -75,7 +82,6 @@ class Good(models.Model):
     
     def __str__(self):
         return f'{self.title} ({self.price} зол.)'
-    
+
     def get_absolute_url(self):
-        from django.urls import reverse
-        return reverse('goods_detail', args=[self.slug])
+        return reverse('good_detail', args=[self.id])

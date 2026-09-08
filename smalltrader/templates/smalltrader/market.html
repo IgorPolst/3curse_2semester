@@ -88,7 +88,7 @@
             data-stock="{{ good.in_stock|yesno:'in_stock,out_stock' }}"
             data-price="{{ good.price }}"
             data-rarity-value="{{ rarity_levels|get_item:good.rarity|get_item:'value' }}">
-            <a href="{% url 'good_detail' good.id %}" class="text-decoration-none text-dark">
+            <a href="{{ good.get_absolute_url }}" class="text-decoration-none text-dark">
             <div class="card h-100">  
                 <img src="{{ good.image.url }}"
                     class="card-img-top" 
@@ -112,10 +112,7 @@
                             {{ good.rarity.name}}
                         </span>
                     </div>
-                    
-                    <!-- Описание -->
-                    <p class="card-text flex-grow-1 mt-2">{{ good.description }}</p> 
-                    
+                
                     <!-- Цена и наличие -->
                     <div class="d-flex justify-content-between align-items-center mt-2">
                         <span class="h5 mb-0">{{ good.price }} <small>зол.</small></span>

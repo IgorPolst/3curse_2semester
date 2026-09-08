@@ -35,11 +35,17 @@ def market(request):
 
         return render(request, 'smalltrader/market.html', context)
 
-def good_detail (request: HttpRequest, good_id: int) -> HttpResponse:
-    good = get_object_or_404(Good, id=good_id)
-
+def good_detail(request: HttpRequest, good_id: int) -> HttpResponse:
+    good = get_object_or_404(Good.objects.select_related('category', 'rarity'), id=good_id)
+    
+    related_goods = Good.objects.filter(
+        category=good.category,
+        is_active=True
+    ).exclude(id=good.id)[:4]
+    
     context = {
         "good": good,
+        "related_goods": related_goods,
+        "page_title": good.title,
     }
-
     return render(request, "smalltrader/good_detail.html", context)

@@ -51,7 +51,7 @@
         {% for good in goods %}
         <div class="col-4 mb-4">
             <div class="good h-100">
-                <img src="{% static good.image %}" class="good-img-top" alt="{{ good.title }}" style="height: 200px; object-fit: cover;">
+                <img src="{{ good.image.url }}" class="good-img-top" alt="{{ good.title }}" style="height: 200px; object-fit: cover;">
                 <div class="good-body d-flex flex-column">
                     <h5 class="good-title">{{ good.title }}</h5>
                     <p class="good-text flex-grow-1">{{ good.description }}</p>

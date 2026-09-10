@@ -44,7 +44,6 @@ class Rarity(models.Model):
 
 
 class Good(models.Model):
-    """Товар"""
     title = models.CharField('Название', max_length=200)
     slug = models.SlugField('URL-идентификатор', max_length=200, unique=True)
     description = models.TextField('Описание')

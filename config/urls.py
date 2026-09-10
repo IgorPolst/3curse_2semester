@@ -27,7 +27,9 @@ urlpatterns = [
     path('market/', views.market, name='market'),
     path('good/<int:good_id>/', views.good_detail, name='good_detail'),
     # path('category/<slug:slug>/', views.category_goods, name='category_goods'),
-    # path('rarity/<slug:slug>/', views.rarity_goods, name='rarity_goods'),        
+    # path('rarity/<slug:slug>/', views.rarity_goods, name='rarity_goods'), 
+    path('add/', views.add_goods, name='add_goods'),
+    path('contact/', views.contact, name='contact'),       
 ]
 
 if settings.DEBUG:

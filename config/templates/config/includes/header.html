@@ -10,13 +10,23 @@
                     <a class="nav-link " href="{% url 'home' %}">Главнаые ворота</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="smalltrader/warehouse.html">Купеческий обоз</a>
+                    <a class="nav-link" href="#">Купеческий обоз</a>
                 </li>
                     <li class="nav-item">
                     <a class="nav-link" href="{% url 'market' %}">Торговая площадь</a>
                 </li>
                     <li class="nav-item">
-                    <a class="nav-link" href="smalltrader/stats.html">Амбарная книга</a>
+                    <a class="nav-link" href="#">Амбарная книга</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'add_goods' %}">
+                        <i class="fas fa-plus"></i> Добавить товар
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'contact' %}">
+                        <i class="fas fa-envelope"></i> Обратная связь
+                    </a>
                 </li>
             </ul>
         </div>

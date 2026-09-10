@@ -1,0 +1,154 @@
+{% extends "config/base.html" %}
+{% load static %}
+{% load custom_filters %} 
+
+{% block title %}Торговая площадь{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4"> Торговая площадь</h1>
+    <p class="text-center text-muted mb-4">Добро пожаловать на главный рынок королевства! Здесь вы найдёте товары на любой вкус и кошелёк.</p>
+    
+    <!-- Фильтры -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Фильтры товаров</h5>
+                    <div class="row">
+                        <!-- По категории -->
+                        <div class="col-md-3 mb-2">
+                            <label for="categoryFilter" class="form-label">Категория</label>
+                            <select id="categoryFilter" class="form-select" onchange="filterGoods()">
+                                <option value="all">Все категории</option>
+                                {% for key, category in categories.items %}
+                                <option value="{{ key }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- По редкости -->
+                        <div class="col-md-3 mb-2">
+                            <label for="rarityFilter" class="form-label">Редкость</label>
+                            <select id="rarityFilter" class="form-select" onchange="filterGoods()">
+                                <option value="all">Любая редкость</option>
+                                {% for key, rarity in rarity_levels.items %}
+                                <option value="{{ key }}">{{ rarity.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- По наличию -->
+                        <div class="col-md-3 mb-2">
+                            <label for="stockFilter" class="form-label">Наличие</label>
+                            <select id="stockFilter" class="form-select" onchange="filterGoods()">
+                                <option value="all">Все товары</option>
+                                <option value="in_stock">В наличии</option>
+                                <option value="out_stock">Нет в наличии</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Сортировка -->
+                        <div class="col-md-3 mb-2">
+                            <label for="sortFilter" class="form-label">Сортировка</label>
+                            <select id="sortFilter" class="form-select" onchange="filterGoods()">
+                                <option value="price_asc">По цене (возрастание)</option>
+                                <option value="price_desc">По цене (убывание)</option>
+                                <option value="rarity_asc">По редкости (возрастание)</option>
+                                <option value="rarity_desc">По редкости (убывание)</option>
+                                <option value="name_asc">По названию (А-Я)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Сброса фильтров -->
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <button class="btn btn-secondary" onclick="resetFilters()">Сбросить фильтры</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Счетчик товаров -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <p class="text-muted" id="itemCount">Найдено товаров: {{ goods|length }}</p>
+        </div>
+    </div>
+    
+    <!-- Список товаров -->
+    <div class="row align-items-stretch" id="goodsContainer">
+        {% for good in goods %}
+        <div class="col-4 mb-4 goods-item" 
+            data-category="{{ good.category }}"
+            data-rarity="{{ good.rarity }}"
+            data-stock="{{ good.in_stock|yesno:'in_stock,out_stock' }}"
+            data-price="{{ good.price }}"
+            data-rarity-value="{{ rarity_levels|get_item:good.rarity|get_item:'value' }}">
+            <a href="{{ good.get_absolute_url }}" class="text-decoration-none text-dark">
+            <div class="card h-100">  
+                <img src="{{ good.image.url }}"
+                    class="card-img-top" 
+                    alt="{{ good.title }}" 
+                    style="height: 200px; object-fit: contain; width: 100%; background-color: #ffff;">
+                                
+                <div class="card-body d-flex flex-column"> 
+                    <!-- Категория -->
+                    <span class="badge bg-{{ good.category.color }}">
+                        <i class="fas {{ categories|get_item:good.category|get_item:'icon' }}"></i>
+                        {{ good.category.name}}
+                    </span>
+                                        
+                    <!-- Название и редкость -->
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                        <h5 class="card-title mb-0" style="word-break: break-word; overflow-wrap: break-word; flex: 1;">
+                            {{ good.title }}
+                        </h5>
+                        <span class="badge bg-{{ rarity_levels|get_item:good.rarity|get_item:'color' }} flex-shrink-0" 
+                            style="white-space: nowrap; font-size: 0.75rem; padding: 0.35em 0.65em;">
+                            {{ good.rarity.name}}
+                        </span>
+                    </div>
+                
+                    <!-- Цена и наличие -->
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <span class="h5 mb-0">{{ good.price }} <small>зол.</small></span>
+                        {% if good.in_stock %}
+                            <span class="badge bg-success">В наличии</span>
+                        {% else %}
+                            <span class="badge bg-danger">Нет в наличии</span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Покупка -->
+                    {% if good.in_stock %}
+                        <button class="btn btn-success mt-3" onclick="alert('Товар «{{ good.title }}» добавлен в корзину!')">
+                            <i class="fas fa-shopping-cart"></i> Купить
+                        </button>
+                    {% else %}
+                        <button class="btn btn-secondary mt-3" disabled>
+                            <i class="fas fa-times"></i> Нет в наличии
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+<script src="{% static 'js/market.js' %}"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+.bg-purple {
+    background-color: #6f42c1;
+    color: white;
+}
+</style>
+{% endblock %}

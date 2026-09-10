@@ -1,0 +1,72 @@
+{%extends "config/base.html"%}
+
+{% load static %}
+
+{% block title %} SmallTrader {% endblock title %}
+
+{%block content%}
+<div class="container-fluid py-5 mb-4" style="background: linear-gradient(135deg, #2c1810 0%, #4a2c1a 100%);">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8 text-white">
+                        
+                    <span class="badge bg-warning text-dark mb-3 fs-6">
+                        <i class="fas fa-crown"></i> Королевская гильдия
+                    </span>
+                    <h1 class="display-3 fw-bold" style="font-family: 'Georgia', serif;">
+                    Возведи свою <span class="text-warning">торговую империю</span>
+                    </h1>
+                    <p class="lead my-4" style="font-family: 'Georgia', serif; color: #d4b896;">
+                    Нанимай мастеров, заключай сделки, строй гильдию и стань самым влиятельным купцом 
+                    в королевстве. <strong class="text-warning">Слава и золото ждут тебя!</strong>
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="market.html" class="btn btn-warning btn-lg px-5 fw-bold">
+                            <i class="fas fa-shield-halved"></i> Открыть гильдию
+                        </a>
+                        <a href="profile.html" class="btn btn-outline-light btn-lg px-4">
+                            <i class="fas fa-scroll"></i> О гильдии
+                        </a>
+                    </div>
+                
+                    <div class="mt-4 d-flex gap-4 text-white-50 small">
+                        <span><i class="fas fa-coins"></i> Стартовый капитал: 1000 золотых</span>
+                        <span><i class="fas fa-users"></i> Гильдия: 1 уровень</span>
+                    </div>
+                </div>
+                <div class="col-lg-4 d-none d-lg-block text-center">
+                    <div style="background: rgba(255, 193, 7, 0.1); border-radius: 50%; padding: 30px; border: 2px solid #ffc107;">
+                        <i class="fas fa-chess-queen" style="font-size: 100px; color: #ffc107;"></i>
+                        <p class="text-warning mt-2" style="font-family: 'Georgia', serif;">Гильдия купцов</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <h2 class="text-center mb-4">Товары для торговли</h2>
+    <div class="row align-items-stretch">
+        {% for good in goods %}
+        <div class="col-4 mb-4">
+            <div class="good h-100">
+                <img src="{{ good.image.url }}" class="good-img-top" alt="{{ good.title }}" style="height: 200px; object-fit: cover;">
+                <div class="good-body d-flex flex-column">
+                    <h5 class="good-title">{{ good.title }}</h5>
+                    <p class="good-text flex-grow-1">{{ good.description }}</p>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <span class="h5 mb-0">{{ good.price }} <small>зол.</small></span>
+                        {% if good.in_stock %}
+                            <span class="badge bg-success">В наличии</span>
+                        {% else %}
+                            <span class="badge bg-danger">Нет в наличии</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{%endblock%}

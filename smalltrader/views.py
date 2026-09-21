@@ -2,24 +2,15 @@ import random
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
-from .models import Good, Category, Rarity
+from .models import *
 from .forms import AddGoodsForm, FeedbackForm
 
 
 def index(request):
 
-    goods = Good.objects.filter(in_stock=True, is_active=True)
-
-    if goods.count() > 3:
-        random_goods = random.sample(list(goods), 3)
-    else:
-        random_goods = goods
-
-    context = {
-        'goods': random_goods,
-        'page_title': 'Главная страница',
-    }
-    return render(request, 'smalltrader/index.html', context)
+    goods_list = list(Good.objects.active().in_stock())
+    random_goods = random.sample(goods_list, min(3, len(goods_list)))
+    return render(request, 'smalltrader/index.html', {'goods': random_goods})
 
 def market(request):
         
@@ -66,25 +57,27 @@ def add_goods(request):
     }
     return render(request, 'smalltrader/add_goods.html', context)
 
+def edit_goods(request, good_id):
+    good = get_object_or_404(Good, id=good_id)
+    
+    if request.method == 'POST':
+        form = AddGoodsForm(request.POST, request.FILES, instance=good)
+        if form.is_valid():
+            form.save()
+            return redirect('good_detail', good_id=good.id)
+    else:
+        form = AddGoodsForm(instance=good)
+    
+    context = {
+        'form': form,
+        'good': good,
+        'page_title': f'Редактирование: {good.title}',
+    }
+    return render(request, 'smalltrader/add_goods.html', context)
 
 def contact(request):
     if request.method == 'POST':
         form = FeedbackForm(request.POST)
         if form.is_valid():
-            print('=' * 50)
-            print('НОВОЕ СООБЩЕНИЕ ОБРАТНОЙ СВЯЗИ')
-            print('=' * 50)
-            print(f'Тема: {form.cleaned_data["subject"]}')
-            print(f'Email: {form.cleaned_data["email"]}')
-            print(f'Сообщение: {form.cleaned_data["text"]}')
-            print('=' * 50)
-            
+            Feedback.objects.create(**form.cleaned_data)
             return redirect('home')
-    else:
-        form = FeedbackForm()
-    
-    context = {
-        'form': form,
-        'page_title': 'Обратная связь',
-    }
-    return render(request, 'smalltrader/contact.html', context)

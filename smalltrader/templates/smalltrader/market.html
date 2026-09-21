@@ -19,7 +19,7 @@
                         <!-- По категории -->
                         <div class="col-md-3 mb-2">
                             <label for="categoryFilter" class="form-label">Категория</label>
-                            <select id="categoryFilter" class="form-select" onchange="filterGoods()">
+                            <select id="categoryFilter" class="form-select">
                                 <option value="all">Все категории</option>
                                 {% for key, category in categories.items %}
                                 <option value="{{ key }}">{{ category.name }}</option>
@@ -30,7 +30,7 @@
                         <!-- По редкости -->
                         <div class="col-md-3 mb-2">
                             <label for="rarityFilter" class="form-label">Редкость</label>
-                            <select id="rarityFilter" class="form-select" onchange="filterGoods()">
+                            <select id="rarityFilter" class="form-select">
                                 <option value="all">Любая редкость</option>
                                 {% for key, rarity in rarity_levels.items %}
                                 <option value="{{ key }}">{{ rarity.name }}</option>
@@ -41,7 +41,7 @@
                         <!-- По наличию -->
                         <div class="col-md-3 mb-2">
                             <label for="stockFilter" class="form-label">Наличие</label>
-                            <select id="stockFilter" class="form-select" onchange="filterGoods()">
+                            <select id="stockFilter" class="form-select">
                                 <option value="all">Все товары</option>
                                 <option value="in_stock">В наличии</option>
                                 <option value="out_stock">Нет в наличии</option>
@@ -51,7 +51,7 @@
                         <!-- Сортировка -->
                         <div class="col-md-3 mb-2">
                             <label for="sortFilter" class="form-label">Сортировка</label>
-                            <select id="sortFilter" class="form-select" onchange="filterGoods()">
+                            <select id="sortFilter" class="form-select">
                                 <option value="price_asc">По цене (возрастание)</option>
                                 <option value="price_desc">По цене (убывание)</option>
                                 <option value="rarity_asc">По редкости (возрастание)</option>
@@ -82,13 +82,13 @@
     <!-- Список товаров -->
     <div class="row align-items-stretch" id="goodsContainer">
         {% for good in goods %}
-        <div class="col-4 mb-4 goods-item" 
-            data-category="{{ good.category }}"
-            data-rarity="{{ good.rarity }}"
-            data-stock="{{ good.in_stock|yesno:'in_stock,out_stock' }}"
-            data-price="{{ good.price }}"
-            data-rarity-value="{{ rarity_levels|get_item:good.rarity|get_item:'value' }}">
-            <a href="{{ good.get_absolute_url }}" class="text-decoration-none text-dark">
+            <div class="col-4 mb-4 goods-item" 
+                data-category="{{ good.category.slug }}"
+                data-rarity="{{ good.rarity.slug }}"
+                data-stock="{{ good.in_stock|yesno:'in_stock,out_stock' }}"
+                data-price="{{ good.price }}"
+                data-rarity-value="{{ good.rarity.value }}"
+            <a href="{% url 'good_detail' good.id %}" class="text-decoration-none text-dark">
             <div class="card h-100">  
                 <img src="{{ good.image.url }}"
                     class="card-img-top" 
@@ -97,7 +97,7 @@
                                 
                 <div class="card-body d-flex flex-column"> 
                     <!-- Категория -->
-                    <span class="badge bg-{{ good.category.color }}">
+                    <span class="badge bg-{{ categories|get_item:good.category|get_item:'color' }} mb-2">
                         <i class="fas {{ categories|get_item:good.category|get_item:'icon' }}"></i>
                         {{ good.category.name}}
                     </span>
@@ -112,7 +112,10 @@
                             {{ good.rarity.name}}
                         </span>
                     </div>
-                
+                    
+                    <!-- Описание -->
+                    <p class="card-text flex-grow-1 mt-2">{{ good.description }}</p> 
+                    
                     <!-- Цена и наличие -->
                     <div class="d-flex justify-content-between align-items-center mt-2">
                         <span class="h5 mb-0">{{ good.price }} <small>зол.</small></span>
@@ -142,13 +145,4 @@
 
 
 <script src="{% static 'js/market.js' %}"></script>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<style>
-.bg-purple {
-    background-color: #6f42c1;
-    color: white;
-}
-</style>
 {% endblock %}

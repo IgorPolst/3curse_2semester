@@ -8,6 +8,8 @@ from smalltrader.models import Good
 class Command(BaseCommand):
     help = 'Копирует все картинки из static/images/ в media/goods/ и привязывает к товарам'
 
+    VALID_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp')
+
     def handle(self, *args, **options):
         # Папки
         source_dir = os.path.join(settings.BASE_DIR, 'static', 'images')
@@ -22,7 +24,11 @@ class Command(BaseCommand):
         os.makedirs(target_dir, exist_ok=True)
         
         # Получаем список всех файлов в папке
-        image_files = os.listdir(source_dir)
+        image_files = [
+            f for f in os.listdir(source_dir)
+            if os.path.isfile(os.path.join(source_dir, f))
+            and f.lower().endswith(self.VALID_EXTENSIONS)
+        ]
         
         if not image_files:
             self.stdout.write(self.style.WARNING('⚠️ В папке static/images/ нет картинок'))

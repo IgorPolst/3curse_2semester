@@ -40,7 +40,7 @@ function filterGoods() {
             case 'rarity_desc':
                 return parseInt(b.dataset.rarityValue) - parseInt(a.dataset.rarityValue);
             case 'name_asc':
-                return a.querySelector('.good-title').textContent.localeCompare(b.querySelector('.good-title').textContent);
+                return a.querySelector('.card-title').textContent.localeCompare(b.querySelector('.card-title').textContent);
             default:
                 return 0;
         }
@@ -65,5 +65,13 @@ function resetFilters() {
 
 // Инициализация
 document.addEventListener('DOMContentLoaded', function() {
+    filterGoods();
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const filters = ['categoryFilter', 'rarityFilter', 'stockFilter', 'sortFilter'];
+    filters.forEach(id => {
+        document.getElementById(id).addEventListener('change', filterGoods);
+    });
     filterGoods();
 });

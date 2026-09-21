@@ -299,8 +299,8 @@ class Command(BaseCommand):
         for good_data in goods_data:
             try:
                 # Извлекаем category_slug и rarity_slug
-                category_slug = good_data.pop('category_slug')
-                rarity_slug = good_data.pop('rarity_slug')
+                category_slug = good_data['category_slug']
+                rarity_slug = good_data['rarity_slug']
                 
                 # Получаем объекты категории и редкости
                 category = Category.objects.get(slug=category_slug)

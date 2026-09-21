@@ -1,4 +1,4 @@
-from .add_good_forms import AddGoodsForm
-from .feed_back_forms import FeedbackForm
+from .add_good import AddGoodsForm
+from .feed_back import FeedbackForm
 
 __all__ = ['AddGoodsForm', 'FeedbackForm']

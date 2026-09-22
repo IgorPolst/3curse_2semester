@@ -21,16 +21,21 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from smalltrader.forms import CustomAuthenticationForm
+from smalltrader.views import (
+    MarketView, GoodDetailView, AddGoodsView, EditGoodsView,
+    DeleteGoodsView, TagGoodsView,
+    index, contact, register, add_comment,   # 👈 FBV остаются
+)
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='home'),
-    path('market/', views.market, name='market'),
-    path('good/<int:good_id>/', views.good_detail, name='good_detail'),
-    path('add/', views.add_goods, name='add_goods'),
+    path('market/', MarketView.as_view(), name='market'),
+    path('good/<int:good_id>/', GoodDetailView.as_view(), name='good_detail'),
+    path('add/', AddGoodsView.as_view(), name='add_goods'),
     path('contact/', views.contact, name='contact'),  
-    path('good/<int:good_id>/edit/', views.edit_goods, name='edit_goods'),     
+    path('good/<int:good_id>/edit/', EditGoodsView.as_view(), name='edit_goods'),     
     path('accounts/register/', views.register, name='register'),
     path('accounts/login/', 
          auth_views.LoginView.as_view(
@@ -39,9 +44,9 @@ urlpatterns = [
          ), 
          name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('accounts/register/', views.register, name='register'),
-    path('tag/<slug:slug>/', views.tag_goods, name='tag_goods'),
+    path('tag/<slug:slug>/', TagGoodsView.as_view(), name='tag_goods'),
     path('good/<int:good_id>/comment/', views.add_comment, name='add_comment'),
+    path('good/<int:good_id>/delete/', DeleteGoodsView.as_view(), name='delete_goods'),
 ]
 
 if settings.DEBUG:

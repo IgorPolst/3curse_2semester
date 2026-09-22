@@ -19,9 +19,7 @@ class Category(models.Model):
     
     def __str__(self):
         return self.name
-    
-    def get_absolute_url(self):
-        return reverse('category_goods', args=[self.slug])
+
 
 
 class Rarity(models.Model):
@@ -38,9 +36,6 @@ class Rarity(models.Model):
     
     def __str__(self):
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('rarity_goods', args=[self.slug])
 
 class GoodQuerySet(models.QuerySet):
     def active(self):

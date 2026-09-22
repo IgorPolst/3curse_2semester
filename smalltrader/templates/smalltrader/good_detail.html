@@ -109,9 +109,15 @@
                                 <i class="fas fa-times"></i> Нет в наличии
                             </button>
                         {% endif %}
-                        <a href="{% url 'edit_goods' good.id %}" class="btn btn-warning">
-                            <i class="fas fa-edit"></i> Редактировать
-                        </a>
+                        {% if user == good.author or user.is_superuser %}
+                            <a href="{% url 'edit_goods' good.id %}" class="btn btn-warning">
+                                <i class="fas fa-edit"></i> Редактировать
+                            </a>
+                            <a href="{% url 'delete_goods' good.id %}" class="btn btn-outline-danger"
+                            onclick="return confirm('Удалить товар «{{ good.title }}»?')">
+                                <i class="fas fa-trash"></i> Удалить
+                            </a>
+                        {% endif %}
                         <a href="{% url 'market' %}" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left"></i> Назад к товарам
                         </a>

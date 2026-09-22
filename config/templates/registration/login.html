@@ -13,9 +13,11 @@
                         <i class="fas fa-sign-in-alt"></i> Вход
                     </h2>
 
-                    {% if form.errors %}
+                    {% if form.non_field_errors %}
                         <div class="alert alert-danger">
-                            Неверный логин или пароль. Попробуйте снова.
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
                         </div>
                     {% endif %}
 

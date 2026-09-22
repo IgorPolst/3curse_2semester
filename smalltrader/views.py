@@ -1,14 +1,15 @@
 import random
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.db.models import Q
 from .models import Good, Category, Rarity, Feedback, Tag
 from .forms import AddGoodsForm, FeedbackForm, CustomUserCreationForm, CommentForm
-from django.contrib.auth.decorators import login_required      
-from django.contrib.auth.forms import UserCreationForm          
+from django.contrib.auth.decorators import login_required               
 from django.contrib.auth import login 
 from django.contrib import messages
 from django.views.decorators.http import require_POST
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.urls import reverse_lazy, reverse
 
 
 
@@ -18,110 +19,140 @@ def index(request):
     random_goods = random.sample(goods_list, min(3, len(goods_list)))
     return render(request, 'smalltrader/index.html', {'goods': random_goods})
 
-def market(request):
+class MarketView(ListView):
+    model = Good
+    template_name = 'smalltrader/market.html'
+    context_object_name = 'goods'
+    
+    def get_queryset(self):
+        return Good.objects.filter(is_active=True).select_related('category', 'rarity')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = {cat.slug: cat for cat in Category.objects.all()}
+        context['rarity_levels'] = {rarity.slug: rarity for rarity in Rarity.objects.all()}
+        context['page_title'] = 'Торговая площадь'
+        return context
+
+
+class GoodDetailView(DetailView):
+    model = Good
+    template_name = 'smalltrader/good_detail.html'
+    context_object_name = 'good'
+    pk_url_kwarg = 'good_id'
+    
+    def get_queryset(self):
+        return Good.objects.select_related('category', 'rarity').prefetch_related('comments__author')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        good = self.object
         
-        goods = Good.objects.filter(is_active=True).select_related('category', 'rarity')
-        categories = {cat.slug: cat for cat in Category.objects.all()}
-        rarity_levels = {rarity.slug: rarity for rarity in Rarity.objects.all()}
+        context['related_goods'] = Good.objects.filter(
+            category=good.category,
+            is_active=True
+        ).exclude(id=good.id)[:4]
+        context['comment_form'] = CommentForm()
+        context['page_title'] = good.title
+        return context
 
-        context = {
-            'categories': categories,
-            'rarity_levels': rarity_levels,
-            'goods': goods,
-            'page_title': 'Торговая площадь',
-        }
 
-        return render(request, 'smalltrader/market.html', context)
-
-def good_detail(request: HttpRequest, good_id: int) -> HttpResponse:
-    good = get_object_or_404(Good.objects.select_related('category', 'rarity'), id=good_id)
+class AddGoodsView(LoginRequiredMixin, CreateView):
+    model = Good
+    form_class = AddGoodsForm
+    template_name = 'smalltrader/add_goods.html'
     
-    related_goods = Good.objects.filter(
-        category=good.category,
-        is_active=True
-    ).exclude(id=good.id)[:4]
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Добавить товар'
+        context['form_title'] = 'Добавить товар'
+        context['submit_label'] = 'Создать товар'
+        context['cancel_url'] = 'market'
+        return context
     
-    context = {
-        "good": good,
-        "related_goods": related_goods,
-        "comment_form": CommentForm(), 
-        "page_title": good.title,
-    }
-    return render(request, "smalltrader/good_detail.html", context)
-
-@login_required 
-def add_goods(request):
-    if request.method == 'POST':
-        form = AddGoodsForm(request.POST, request.FILES)
-        if form.is_valid():
-            good = form.save(commit=False)
-            good.author = request.user
-            good.save()
-            form.save_m2m()
-            messages.success(request, f'Товар «{good.title}» успешно создан!')
-            return redirect('good_detail', good_id=good.id)
-        else:
-            messages.error(request, 'Ошибка при создании товара. Проверьте поля.')
-    else:
-        form = AddGoodsForm()
-
-    context = {
-        'form': form,
-        'page_title': 'Добавить товар',
-        'form_title': 'Добавить товар',
-        'submit_label': 'Создать товар',
-        'cancel_url': 'market',
-    }
-    return render(request, 'smalltrader/add_goods.html', context)
-
-@login_required
-def edit_goods(request, good_id):
-    good = get_object_or_404(Good, id=good_id)
-
-    can_edit = (
-        good.author == request.user
-        or request.user.is_superuser
-    )
-
-    if not can_edit:
-        messages.error(request, 'У вас нет прав на редактирование этого товара.')
-        return redirect('good_detail', good_id=good.id)
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        messages.success(self.request, f'Товар «{form.instance.title}» успешно создан!')
+        return super().form_valid(form)
     
-    if request.method == 'POST':
-        form = AddGoodsForm(request.POST, request.FILES, instance=good)
-        if form.is_valid():
-            form.save()
-            messages.success(request, f'Товар «{good.title}» обновлён!')
-            return redirect('good_detail', good_id=good.id)
-        else:
-            messages.error(request, 'Ошибка при сохранении.')
-    else:
-        form = AddGoodsForm(instance=good)
+    def get_success_url(self):
+        return reverse('good_detail', kwargs={'good_id': self.object.id})
 
-    context = {
-        'form': form,
-        'good': good,
-        'page_title': f'Редактирование: {good.title}',
-        'form_title': f'Редактирование: {good.title}',
-        'submit_label': 'Сохранить изменения',
-        'cancel_url': 'good_detail',
-        'cancel_url_arg': good.id,
-    }
-    return render(request, 'smalltrader/add_goods.html', context)
 
-def tag_goods(request, slug):
-
-    tag = get_object_or_404(Tag, slug=slug)
-    goods = Good.objects.filter(tags=tag, is_active=True).select_related('category', 'rarity')
+class EditGoodsView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Good
+    form_class = AddGoodsForm
+    template_name = 'smalltrader/add_goods.html'
+    pk_url_kwarg = 'good_id'
+    raise_exception = False
     
-    context = {
-        'tag': tag,
-        'goods': goods,
-        'page_title': f'Тег: {tag.name}',
-        'categories': {cat.slug: cat for cat in Category.objects.all()},
-        'rarity_levels': {rarity.slug: rarity for rarity in Rarity.objects.all()},
-    }
-    return render(request, 'smalltrader/market.html', context)    
+    def test_func(self):
+        good = self.get_object()
+        return (
+            good.author == self.request.user
+            or self.request.user.is_superuser
+            or good.author is None
+        )
+    
+    def handle_no_permission(self):
+        messages.error(self.request, 'У вас нет прав на редактирование.')
+        return redirect('good_detail', good_id=self.get_object().id)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        good = self.object
+        context['good'] = good
+        context['page_title'] = f'Редактирование: {good.title}'
+        context['form_title'] = f'Редактирование: {good.title}'
+        context['submit_label'] = 'Сохранить изменения'
+        context['cancel_url'] = 'good_detail'
+        context['cancel_url_arg'] = good.id
+        return context
+    
+    def form_valid(self, form):
+        messages.success(self.request, f'Товар «{form.instance.title}» обновлён!')
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse('good_detail', kwargs={'good_id': self.object.id})
+
+class DeleteGoodsView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Good
+    template_name = 'smalltrader/good_confirm_delete.html'
+    context_object_name = 'good'
+    pk_url_kwarg = 'good_id'
+    success_url = reverse_lazy('market')
+    
+    def test_func(self):
+        good = self.get_object()
+        return (
+            good.author == self.request.user
+            or self.request.user.is_superuser
+        )
+    
+    def form_valid(self, form):
+        messages.success(self.request, f'Товар «{self.object.title}» удалён.')
+        return super().form_valid(form)
+
+class TagGoodsView(ListView):
+    model = Good
+    template_name = 'smalltrader/market.html'
+    context_object_name = 'goods'
+    
+    def get_queryset(self):
+        self.tag = get_object_or_404(Tag, slug=self.kwargs['slug'])
+        return Good.objects.filter(
+            tags=self.tag,
+            is_active=True
+        ).select_related('category', 'rarity')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag'] = self.tag
+        context['categories'] = {cat.slug: cat for cat in Category.objects.all()}
+        context['rarity_levels'] = {rarity.slug: rarity for rarity in Rarity.objects.all()}
+        context['page_title'] = f'Тег: {self.tag.name}'
+        return context  
 
 def register(request):
 
@@ -140,7 +171,6 @@ def register(request):
     
     return render(request, 'registration/register.html', {'form': form})
 
-@login_required
 def contact(request):
     if request.method == 'POST':
         form = FeedbackForm(request.POST)
@@ -172,7 +202,5 @@ def add_comment(request, good_id):
         comment.author = request.user
         comment.save()
         messages.success(request, 'Комментарий добавлен!')
-    else:
-        messages.error(request, 'Ошибка: комментарий не может быть пустым.')
     
     return redirect('good_detail', good_id=good.id)

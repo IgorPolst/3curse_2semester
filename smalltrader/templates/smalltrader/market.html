@@ -111,10 +111,12 @@
                         <h5 class="card-title mb-0" style="word-break: break-word; overflow-wrap: break-word; flex: 1;">
                             {{ good.title }}
                         </h5>
-                        <span class="badge bg-{{ rarity_levels|get_item:good.rarity|get_item:'color' }} flex-shrink-0" 
-                            style="white-space: nowrap; font-size: 0.75rem; padding: 0.35em 0.65em;">
-                            {{ good.rarity.name}}
-                        </span>
+                        {% if good.rarity %}
+                            <span class="badge bg-{{ good.rarity.color }} flex-shrink-0" 
+                                style="white-space: nowrap; font-size: 0.75rem; padding: 0.35em 0.65em;">
+                                {{ good.rarity.name }}
+                            </span>
+                        {% endif %}
                     </div>
                     
                     <!-- Описание -->

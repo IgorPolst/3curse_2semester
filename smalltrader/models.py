@@ -70,6 +70,8 @@ class Tag(models.Model):
     def get_absolute_url(self):
         return reverse('tag_goods', args=[self.slug])
 
+
+
 class Good(models.Model):
     title = models.CharField('Название', max_length=200)
     slug = models.SlugField('URL-идентификатор', max_length=200, unique=True)
@@ -132,5 +134,29 @@ class Good(models.Model):
     def __str__(self):
         return f'{self.title} ({self.price} зол.)'
 
+class Comment(models.Model):
+    
+    good = models.ForeignKey(
+        Good,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Товар',
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Автор',
+    )
+    text = models.TextField('Комментарий')
+    created_at = models.DateTimeField('Дата создания', auto_now_add=True)
+    
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f'{self.author.username} → {self.good.title}'
 
 

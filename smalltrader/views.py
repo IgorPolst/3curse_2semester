@@ -3,10 +3,12 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from .models import Good, Category, Rarity, Feedback, Tag
-from .forms import AddGoodsForm, FeedbackForm, CustomUserCreationForm
+from .forms import AddGoodsForm, FeedbackForm, CustomUserCreationForm, CommentForm
 from django.contrib.auth.decorators import login_required      
 from django.contrib.auth.forms import UserCreationForm          
 from django.contrib.auth import login 
+from django.contrib import messages
+from django.views.decorators.http import require_POST
 
 
 
@@ -42,6 +44,7 @@ def good_detail(request: HttpRequest, good_id: int) -> HttpResponse:
     context = {
         "good": good,
         "related_goods": related_goods,
+        "comment_form": CommentForm(), 
         "page_title": good.title,
     }
     return render(request, "smalltrader/good_detail.html", context)
@@ -51,11 +54,14 @@ def add_goods(request):
     if request.method == 'POST':
         form = AddGoodsForm(request.POST, request.FILES)
         if form.is_valid():
-            good = form.save(commit=False)               
-            good.author = request.user                   
-            good.save() 
-            form.save_m2m()                                 
+            good = form.save(commit=False)
+            good.author = request.user
+            good.save()
+            form.save_m2m()
+            messages.success(request, f'Товар «{good.title}» успешно создан!')
             return redirect('good_detail', good_id=good.id)
+        else:
+            messages.error(request, 'Ошибка при создании товара. Проверьте поля.')
     else:
         form = AddGoodsForm()
 
@@ -76,15 +82,19 @@ def edit_goods(request, good_id):
         good.author == request.user
         or request.user.is_superuser
     )
-    
+
     if not can_edit:
+        messages.error(request, 'У вас нет прав на редактирование этого товара.')
         return redirect('good_detail', good_id=good.id)
     
     if request.method == 'POST':
         form = AddGoodsForm(request.POST, request.FILES, instance=good)
         if form.is_valid():
             form.save()
+            messages.success(request, f'Товар «{good.title}» обновлён!')
             return redirect('good_detail', good_id=good.id)
+        else:
+            messages.error(request, 'Ошибка при сохранении.')
     else:
         form = AddGoodsForm(instance=good)
 
@@ -120,7 +130,11 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
+            messages.success(request, f'Добро пожаловать, {user.username}!')
             return redirect('home')
+        else:
+            messages.error(request, 'Ошибка регистрации. Проверьте данные.')
+        
     else:
         form = CustomUserCreationForm()
     
@@ -132,7 +146,10 @@ def contact(request):
         form = FeedbackForm(request.POST)
         if form.is_valid():
             Feedback.objects.create(**form.cleaned_data)
+            messages.success(request, 'Сообщение отправлено! Мы свяжемся с вами.')
             return redirect('home')
+        else:
+            messages.error(request, 'Ошибка: проверьте форму.')
     else:
         form = FeedbackForm()
 
@@ -141,3 +158,21 @@ def contact(request):
         'page_title': 'Обратная связь',
     }
     return render(request, 'smalltrader/contact.html', context)
+
+@login_required
+@require_POST
+def add_comment(request, good_id):
+
+    good = get_object_or_404(Good, id=good_id)
+    form = CommentForm(request.POST)
+    
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.good = good
+        comment.author = request.user
+        comment.save()
+        messages.success(request, 'Комментарий добавлен!')
+    else:
+        messages.error(request, 'Ошибка: комментарий не может быть пустым.')
+    
+    return redirect('good_detail', good_id=good.id)

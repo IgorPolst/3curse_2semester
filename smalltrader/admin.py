@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Rarity, Good, Tag
+from .models import Category, Rarity, Good, Tag, Comment
 
 
 @admin.register(Category)
@@ -20,6 +20,17 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ['name', 'slug']
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ['name']
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ['author', 'good', 'text_preview', 'created_at']
+    list_filter = ['created_at', 'author']
+    search_fields = ['text', 'author__username', 'good__title']
+    readonly_fields = ['created_at']
+    
+    def text_preview(self, obj):
+        return obj.text[:60] + '...' if len(obj.text) > 60 else obj.text
+    text_preview.short_description = 'Текст'
 
 
 @admin.register(Good)

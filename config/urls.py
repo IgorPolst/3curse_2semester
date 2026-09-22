@@ -41,6 +41,7 @@ urlpatterns = [
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('accounts/register/', views.register, name='register'),
     path('tag/<slug:slug>/', views.tag_goods, name='tag_goods'),
+    path('good/<int:good_id>/comment/', views.add_comment, name='add_comment'),
 ]
 
 if settings.DEBUG:

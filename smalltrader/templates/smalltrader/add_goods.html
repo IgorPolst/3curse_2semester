@@ -1,0 +1,63 @@
+{% extends "config/base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h2 class="card-title text-center mb-4">
+                        {% if good %}
+                            <i class="fas fa-edit"></i> {{ form_title }}
+                        {% else %}
+                            <i class="fas fa-plus-circle"></i> {{ form_title }}
+                        {% endif %}
+                    </h2>
+
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    {{ field.label }}
+                                    {% if field.field.required %}
+                                        <span class="text-danger">*</span>
+                                    {% endif %}
+                                </label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small class="text-muted d-block">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save"></i> {{ submit_label }}
+                            </button>
+                            {% if cancel_url == 'good_detail' %}
+                                <a href="{% url cancel_url cancel_url_arg %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left"></i> Отмена
+                                </a>
+                            {% else %}
+                                <a href="{% url cancel_url %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left"></i> Отмена
+                                </a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+.hero-banner {
+    background: linear-gradient(135deg, #2c1810 0%, #4a2c1a 100%);
+}
+.hero-title {
+    font-family: 'Georgia', serif;
+}
+.hero-subtitle {
+    font-family: 'Georgia', serif;
+    color: #d4b896;
+}

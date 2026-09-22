@@ -6,7 +6,6 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Category(models.Model):
-    """Категория товара"""
     name = models.CharField('Название', max_length=100)
     slug = models.SlugField('URL-идентификатор', max_length=100, unique=True)
     color = models.CharField('Цвет для Bootstrap', max_length=50, default='secondary')
@@ -26,15 +25,10 @@ class Category(models.Model):
 
 
 class Rarity(models.Model):
-    """Редкость товара"""
     name = models.CharField('Название', max_length=50)
     slug = models.SlugField('URL-идентификатор', max_length=50, unique=True)
     color = models.CharField('Цвет для Bootstrap', max_length=50, default='secondary')
-    value = models.PositiveSmallIntegerField('Значение редкости (1-6)', 
-                                                default=1, validators=[                              # 👈 НОВЫЕ ВАЛИДАТОРЫ
-                                                    MinValueValidator(1),
-                                                    MaxValueValidator(6),
-        ])
+    value = models.PositiveSmallIntegerField('Значение редкости (1-6)', default=1, validators=[MinValueValidator(1), MaxValueValidator(6),])
     description = models.TextField('Описание', blank=True)
     
     class Meta:
@@ -61,6 +55,21 @@ class Feedback(models.Model):
     text = models.TextField('Сообщение')
     created_at = models.DateTimeField(auto_now_add=True)
 
+class Tag(models.Model):
+    name = models.CharField('Название', max_length=50, unique=True)
+    slug = models.SlugField('URL-идентификатор', max_length=50, unique=True)
+    
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+        ordering = ['name']
+    
+    def __str__(self):
+        return self.name
+    
+    def get_absolute_url(self):
+        return reverse('tag_goods', args=[self.slug])
+
 class Good(models.Model):
     title = models.CharField('Название', max_length=200)
     slug = models.SlugField('URL-идентификатор', max_length=200, unique=True)
@@ -86,6 +95,13 @@ class Good(models.Model):
         blank=True,
         related_name='goods',
         verbose_name='Редкость'
+    )
+
+    tags = models.ManyToManyField(
+        Tag,
+        blank=True,
+        related_name='goods',
+        verbose_name='Теги',
     )
 
     author = models.ForeignKey(
@@ -115,5 +131,6 @@ class Good(models.Model):
     
     def __str__(self):
         return f'{self.title} ({self.price} зол.)'
+
 
 

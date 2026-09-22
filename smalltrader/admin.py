@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Rarity, Good
+from .models import Category, Rarity, Good, Tag
 
 
 @admin.register(Category)
@@ -12,6 +12,12 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Rarity)
 class RarityAdmin(admin.ModelAdmin):
     list_display = ['name', 'slug', 'color', 'value']
+    prepopulated_fields = {'slug': ('name',)}
+    search_fields = ['name']
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ['name', 'slug']
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ['name']
 

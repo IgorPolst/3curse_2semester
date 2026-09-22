@@ -18,6 +18,7 @@ class AddGoodsForm(forms.ModelForm):
             'category',
             'rarity',
             'is_active',
+            'tags'
         ]
 
         widgets = {
@@ -31,6 +32,7 @@ class AddGoodsForm(forms.ModelForm):
             'category': forms.Select(attrs={'class': 'form-select'}),
             'rarity': forms.Select(attrs={'class': 'form-select'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'tags': forms.SelectMultiple(attrs={'class': 'form-select', 'size': 5,}),
         }
 
         labels = {
@@ -44,6 +46,7 @@ class AddGoodsForm(forms.ModelForm):
             'category': 'Категория',
             'rarity': 'Редкость',
             'is_active': 'Активно',
+            'tags': 'Теги',
         }
 
         help_texts = {

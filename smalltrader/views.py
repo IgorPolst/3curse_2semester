@@ -2,7 +2,7 @@ import random
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
-from .models import Good, Category, Rarity, Feedback
+from .models import Good, Category, Rarity, Feedback, Tag
 from .forms import AddGoodsForm, FeedbackForm, CustomUserCreationForm
 from django.contrib.auth.decorators import login_required      
 from django.contrib.auth.forms import UserCreationForm          
@@ -53,7 +53,8 @@ def add_goods(request):
         if form.is_valid():
             good = form.save(commit=False)               
             good.author = request.user                   
-            good.save()                                  
+            good.save() 
+            form.save_m2m()                                 
             return redirect('good_detail', good_id=good.id)
     else:
         form = AddGoodsForm()
@@ -71,7 +72,12 @@ def add_goods(request):
 def edit_goods(request, good_id):
     good = get_object_or_404(Good, id=good_id)
 
-    if good.author != request.user:
+    can_edit = (
+        good.author == request.user
+        or request.user.is_superuser
+    )
+    
+    if not can_edit:
         return redirect('good_detail', good_id=good.id)
     
     if request.method == 'POST':
@@ -92,6 +98,20 @@ def edit_goods(request, good_id):
         'cancel_url_arg': good.id,
     }
     return render(request, 'smalltrader/add_goods.html', context)
+
+def tag_goods(request, slug):
+
+    tag = get_object_or_404(Tag, slug=slug)
+    goods = Good.objects.filter(tags=tag, is_active=True).select_related('category', 'rarity')
+    
+    context = {
+        'tag': tag,
+        'goods': goods,
+        'page_title': f'Тег: {tag.name}',
+        'categories': {cat.slug: cat for cat in Category.objects.all()},
+        'rarity_levels': {rarity.slug: rarity for rarity in Rarity.objects.all()},
+    }
+    return render(request, 'smalltrader/market.html', context)    
 
 def register(request):
 

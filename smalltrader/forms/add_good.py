@@ -21,7 +21,8 @@ class AddGoodsForm(forms.ModelForm):
         ]
 
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
+           'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Например: Пшеница'}),
+            'slug': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'pshenica'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'image': forms.FileInput(attrs={'class': 'form-control'}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),

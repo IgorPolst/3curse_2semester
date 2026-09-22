@@ -1,7 +1,7 @@
 {% extends "config/base.html" %}
 {% load static %}
 
-{% block title %}Добавить товар{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -10,7 +10,11 @@
             <div class="card shadow">
                 <div class="card-body p-4">
                     <h2 class="card-title text-center mb-4">
-                        <i class="fas fa-plus-circle"></i> Добавить товар
+                        {% if good %}
+                            <i class="fas fa-edit"></i> {{ form_title }}
+                        {% else %}
+                            <i class="fas fa-plus-circle"></i> {{ form_title }}
+                        {% endif %}
                     </h2>
 
                     <form method="post" enctype="multipart/form-data" novalidate>
@@ -20,10 +24,13 @@
                             <div class="mb-3">
                                 <label for="{{ field.id_for_label }}" class="form-label">
                                     {{ field.label }}
+                                    {% if field.field.required %}
+                                        <span class="text-danger">*</span>
+                                    {% endif %}
                                 </label>
                                 {{ field }}
                                 {% if field.help_text %}
-                                    <small class="text-muted">{{ field.help_text }}</small>
+                                    <small class="text-muted d-block">{{ field.help_text }}</small>
                                 {% endif %}
                                 {% if field.errors %}
                                     <div class="text-danger small mt-1">
@@ -35,11 +42,17 @@
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-success btn-lg">
-                                <i class="fas fa-save"></i> Сохранить
+                                <i class="fas fa-save"></i> {{ submit_label }}
                             </button>
-                            <a href="{% url 'market' %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left"></i> Отмена
-                            </a>
+                            {% if cancel_url == 'good_detail' %}
+                                <a href="{% url cancel_url cancel_url_arg %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left"></i> Отмена
+                                </a>
+                            {% else %}
+                                <a href="{% url cancel_url %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left"></i> Отмена
+                                </a>
+                            {% endif %}
                         </div>
                     </form>
                 </div>
@@ -47,5 +60,4 @@
         </div>
     </div>
 </div>
-
 {% endblock %}

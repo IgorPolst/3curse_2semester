@@ -2,7 +2,7 @@ import random
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
-from .models import *
+from .models import Good, Category, Rarity, Feedback
 from .forms import AddGoodsForm, FeedbackForm
 
 
@@ -50,16 +50,19 @@ def add_goods(request):
             return redirect('good_detail', good_id=good.id)
     else:
         form = AddGoodsForm()
-    
+
     context = {
         'form': form,
         'page_title': 'Добавить товар',
+        'form_title': 'Добавить товар',
+        'submit_label': 'Создать товар',
+        'cancel_url': 'market',
     }
     return render(request, 'smalltrader/add_goods.html', context)
 
 def edit_goods(request, good_id):
     good = get_object_or_404(Good, id=good_id)
-    
+
     if request.method == 'POST':
         form = AddGoodsForm(request.POST, request.FILES, instance=good)
         if form.is_valid():
@@ -67,11 +70,15 @@ def edit_goods(request, good_id):
             return redirect('good_detail', good_id=good.id)
     else:
         form = AddGoodsForm(instance=good)
-    
+
     context = {
         'form': form,
         'good': good,
         'page_title': f'Редактирование: {good.title}',
+        'form_title': f'Редактирование: {good.title}',
+        'submit_label': 'Сохранить изменения',
+        'cancel_url': 'good_detail',
+        'cancel_url_arg': good.id,
     }
     return render(request, 'smalltrader/add_goods.html', context)
 
@@ -81,3 +88,11 @@ def contact(request):
         if form.is_valid():
             Feedback.objects.create(**form.cleaned_data)
             return redirect('home')
+    else:
+        form = FeedbackForm()
+
+    context = {
+        'form': form,
+        'page_title': 'Обратная связь',
+    }
+    return render(request, 'smalltrader/contact.html', context)

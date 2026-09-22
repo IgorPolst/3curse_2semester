@@ -109,7 +109,7 @@
                     <div class="card-body">
                         <h6 class="card-title">{{ related.title }}</h6>
                         <p class="card-text small text-medieval-gold">{{ related.price }} зол.</p>
-                        <a href="{{ related.get_absolute_url }}" class="btn btn-sm btn-primary w-100">
+                        <a href="{% url 'good_detail' related.id %}" class="btn btn-sm btn-primary w-100">
                             <i class="fas fa-eye"></i> Подробнее
                         </a>
                     </div>

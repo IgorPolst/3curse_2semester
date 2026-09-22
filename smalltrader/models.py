@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User 
 from django.db import models
 from django.utils import timezone
 from django.urls import reverse
@@ -86,6 +87,15 @@ class Good(models.Model):
         related_name='goods',
         verbose_name='Редкость'
     )
+
+    author = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='goods',
+        verbose_name='Продавец'
+    )
     
     created_at = models.DateTimeField('Дата создания', auto_now_add=True)
     updated_at = models.DateTimeField('Дата обновления', auto_now=True)
@@ -105,3 +115,5 @@ class Good(models.Model):
     
     def __str__(self):
         return f'{self.title} ({self.price} зол.)'
+
+

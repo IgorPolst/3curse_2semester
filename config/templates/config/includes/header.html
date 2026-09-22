@@ -29,6 +29,46 @@
                     </a>
                 </li>
             </ul>
+
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" 
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user"></i> Привет, {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            {% if user.is_staff %}
+                                <li>
+                                    <a class="dropdown-item" href="/admin/">
+                                        <i class="fas fa-cog"></i> Админка
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                            {% endif %}
+                            <li>
+                                <form method="post" action="{% url 'logout' %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="fas fa-sign-out-alt"></i> Выход
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">
+                            <i class="fas fa-sign-in-alt"></i> Вход
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'register' %}">
+                            <i class="fas fa-user-plus"></i> Регистрация
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
         </div>
 </nav>
     

@@ -3,7 +3,11 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from .models import Good, Category, Rarity, Feedback
-from .forms import AddGoodsForm, FeedbackForm
+from .forms import AddGoodsForm, FeedbackForm, CustomUserCreationForm
+from django.contrib.auth.decorators import login_required      
+from django.contrib.auth.forms import UserCreationForm          
+from django.contrib.auth import login 
+
 
 
 def index(request):
@@ -42,11 +46,14 @@ def good_detail(request: HttpRequest, good_id: int) -> HttpResponse:
     }
     return render(request, "smalltrader/good_detail.html", context)
 
+@login_required 
 def add_goods(request):
     if request.method == 'POST':
         form = AddGoodsForm(request.POST, request.FILES)
         if form.is_valid():
-            good = form.save()
+            good = form.save(commit=False)               
+            good.author = request.user                   
+            good.save()                                  
             return redirect('good_detail', good_id=good.id)
     else:
         form = AddGoodsForm()
@@ -60,9 +67,13 @@ def add_goods(request):
     }
     return render(request, 'smalltrader/add_goods.html', context)
 
+@login_required
 def edit_goods(request, good_id):
     good = get_object_or_404(Good, id=good_id)
 
+    if good.author != request.user:
+        return redirect('good_detail', good_id=good.id)
+    
     if request.method == 'POST':
         form = AddGoodsForm(request.POST, request.FILES, instance=good)
         if form.is_valid():
@@ -82,6 +93,20 @@ def edit_goods(request, good_id):
     }
     return render(request, 'smalltrader/add_goods.html', context)
 
+def register(request):
+
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('home')
+    else:
+        form = CustomUserCreationForm()
+    
+    return render(request, 'registration/register.html', {'form': form})
+
+@login_required
 def contact(request):
     if request.method == 'POST':
         form = FeedbackForm(request.POST)

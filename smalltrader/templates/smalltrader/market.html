@@ -132,9 +132,20 @@
                     
                     <!-- Покупка -->
                     {% if good.in_stock %}
-                        <button class="btn btn-success mt-3" onclick="alert('Товар «{{ good.title }}» добавлен в корзину!')">
-                            <i class="fas fa-shopping-cart"></i> Купить
-                        </button>
+                        {% if user.is_authenticated %}
+                            <button class="btn btn-success mt-3 buy-button" 
+                                    data-good-id="{{ good.id }}"
+                                    data-good-title="{{ good.title }}"
+                                    onclick="event.preventDefault(); event.stopPropagation(); handleBuyClick(this);">
+                                <i class="fas fa-shopping-cart"></i> Купить
+                            </button>
+                        {% else %}
+                            <a href="{% url 'login' %}?next={{ request.path }}" 
+                            class="btn btn-outline-warning mt-3"
+                            onclick="event.stopPropagation();">
+                                <i class="fas fa-lock"></i> Войти, чтобы купить
+                            </a>
+                        {% endif %}
                     {% else %}
                         <button class="btn btn-secondary mt-3" disabled>
                             <i class="fas fa-times"></i> Нет в наличии

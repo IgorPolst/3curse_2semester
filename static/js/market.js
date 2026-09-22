@@ -63,6 +63,11 @@ function resetFilters() {
     filterGoods();
 }
 
+function handleBuyClick(button) {
+    const goodId = button.dataset.goodId;
+    const goodTitle = button.dataset.goodTitle;
+    alert('Товар «' + goodTitle + '» добавлен в корзину!');
+}
 // Инициализация
 document.addEventListener('DOMContentLoaded', function() {
     filterGoods();

@@ -15,10 +15,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from smalltrader import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
+from smalltrader.forms import CustomAuthenticationForm
 
 
 urlpatterns = [
@@ -29,6 +31,15 @@ urlpatterns = [
     path('add/', views.add_goods, name='add_goods'),
     path('contact/', views.contact, name='contact'),  
     path('good/<int:good_id>/edit/', views.edit_goods, name='edit_goods'),     
+    path('accounts/register/', views.register, name='register'),
+    path('accounts/login/', 
+         auth_views.LoginView.as_view(
+             template_name='registration/login.html',
+             authentication_form=CustomAuthenticationForm
+         ), 
+         name='login'),
+    path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('accounts/register/', views.register, name='register'),
 ]
 
 if settings.DEBUG:
